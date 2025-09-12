@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>A2Z Utilities | Your Online Toolbox</title>
+    <link href="{{ url_for('static', path='css/custom.css')}}" type="text/css" rel="stylesheet">
+    <link href="{{ url_for('static', path='css/bootstrap.min.css')}}" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="{{ url_for('static', path='js/bootstrap.min.js')}}"></script>
+</head>
+<body>
+<!--<nav class="navbar bg-primary fixed-top">-->
+<!--    <div class="container-fluid justify-content-center">-->
+<!--        <a href="/"><span class="navbar-brand mb-0 h1 text-white">A2Z Utilities - Your Online Toolbox</span></a>-->
+<!--    </div>-->
+<!--</nav>-->
+<nav class="navbar bg-primary fixed-top">
+    <div class="container-fluid justify-content-center">
+        <a href="/">
+            <!-- This version is ONLY visible on medium screens and larger -->
+            <span class="navbar-brand d-none d-md-inline h1 mb-0 text-white">A2Z Utilities - Your Online Toolbox</span>
+
+            <!-- This shorter version is ONLY visible on small (mobile) screens -->
+            <span class="navbar-brand d-inline d-md-none h1 mb-0 text-white">A2Z Utilities</span>
+        </a>
+    </div>
+</nav>
+<div class="container text-center py-5 mt-5">
+    {% block content %}
+    {% endblock %}
+</div>
+<div class="container">
+  <footer class="fixed-bottom bg-primary text-center py-3 text-white">
+    <p class="mb-0">Made with ❤ by Rajesh Anipindi</p>
+  </footer>
+</div>
+</body>
+</html>

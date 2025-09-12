@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+    <h1>PDF Compressor</h1>
+</div>
+<div class="container mt-5">
+<form method="post">
+  <div class="mb-3 offset-3 col-6">
+      <input type="file" class="form-control" id="inputFile">
+  </div>
+  <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+</div>
+{% endblock %}

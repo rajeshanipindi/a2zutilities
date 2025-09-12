@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <h1>Image Compressor</h1>
+</div>
+<div class="container mt-3">
+<form method="post" action="/compressimg" enctype="multipart/form-data">
+    <div class="mb-3 offset-3 col-6">
+        <input type="file" class="form-control" id="inputFile" name="file">
+        <label for="rangeSlider" class="form-label mt-3">Choose Compression Percentage</label>
+        <input type="range" class="form-range" min="10" max="100" value="90" id="rangeSlider" name="compression_ratio">
+        <output for="rangeSlider" id="rangeValue"></output>
+    </div>
+  <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+    <div class="container mt-3 py-3">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p>{{ error }}</p>
+            </div>
+        {% elif result %}
+            <div class="card shadow-sm">
+                 <div class="card-header text-bg-success">
+                    Compression Complete!
+                </div>
+                <div class="card-body p-4 text-center">
+                    <h5 class="card-title">Compressed Image Preview</h5>
+
+                    <ul class="list-group list-group-flush text-center">
+
+                        <!-- Access the data using result.original_size_kb -->
+                        <li class="list-group-item"><strong>Original Size:</strong> {{ result.actual_size }} KB</li>
+
+                        <!-- Access the data using result.compressed_size_kb -->
+                        <li class="list-group-item"><strong>Compressed Size:</strong> {{ result.compressed_size }} KB</li>
+                    </ul>
+
+                    <!-- Access the data using result.image_preview_uri -->
+                    <img src="{{ result.compressed_image_uri | safe }}" alt="Compressed Image" class="img-fluid rounded border p-2 mb-4" style="max-height: 300px;">
+
+
+                </div>
+            </div>
+        {% else %}
+             <div class="text-center p-4 bg-light rounded">
+                <i class="bi bi-arrows-angle-contract" style="font-size: 5rem; color: #ccc;"></i>
+                <p class="mt-3 text-muted">Your compressed image will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    // Range Slider Handling Code for Image Compression
+    const rangeInput = document.getElementById('rangeSlider');
+    const rangeOutput = document.getElementById('rangeValue');
+    rangeOutput.textContent = rangeInput.value;
+    rangeInput.addEventListener('input', function() {
+        rangeOutput.textContent = this.value;
+    });
+</script>
+{% endblock %}
