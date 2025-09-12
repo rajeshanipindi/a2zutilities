@@ -3,12 +3,28 @@ from io import BytesIO
 from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from pydantic import HttpUrl
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import HTMLResponse, StreamingResponse
 from starlette.staticfiles import StaticFiles
 from typing import Annotated
 import qrcode
 from PIL import Image
+
+class ProxyHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        """
+        Looks for the 'x-forwarded-proto' header and sets the request scheme.
+        This is needed when running behind a proxy like Railway's.
+        """
+        forwarded_proto = request.headers.get("x-forwarded-proto")
+        if forwarded_proto:
+            request.scope["scheme"] = forwarded_proto
+
+        response = await call_next(request)
+        return response
+
 app = FastAPI()
+app.add_middleware(ProxyHeadersMiddleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
