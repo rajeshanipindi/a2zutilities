@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "hypercorn main:app --bind \"[::]:$PORT\" --forwarded-allow-ips='*"
+    "startCommand": "hypercorn main:app --bind \"[::]:$PORT\""
   }
 }
