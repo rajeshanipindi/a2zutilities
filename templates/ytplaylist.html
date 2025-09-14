@@ -7,34 +7,70 @@
                 <div class="card-body p-4">
                     <h3 class="card-title mb-3">YT Playlist Duration Calculator</h3>
                     <p class="card-subtitle mb-4 text-muted">Enter any valid Youtube Playlist URL below to find out total watch time instantly.</p>
-                    <form method="post" action="/ytplaylist">
+                    <form id="playlistForm" method="post" action="/ytplaylist">
                         <div class="mb-3">
                             <label for="urlInput" class="form-label">Your URL</label>
                             <input type="url" class="form-control" id="urlInput" name="url" required placeholder="https://youtube.com/playlist?list=XXXX">
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Calculate Watch Time</button>
+                            <button type="submit" id="calculateBtn" class="btn btn-primary">Calculate Watch Time</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-6 text-center">
-            {% if generated_image %}
-            <div class="card">
-                <div class="card-body p-4">
-                    <h3 class="mb-3">Watch Time</h3>
-                    <img src="{{ generated_image | safe }}" alt="Generated QR Code" class="img-fluid rounded border p-2">
+        <div class="col-lg-6">
+            {% if result %}
+                <div class="text-center p-4 bg-light rounded">
+                    <h3 class="text-center fw-bold text-dark mb-4">Playlist Details</h3>
+                    <table class="table-bordered border-1">
+                        <tbody>
+                            <tr>
+                                <td class="text-center" rowspan="3" style="width: 260px;">
+                                    <img src="{{ result.thumbnail | safe }}" alt="Thumbnail" class="img-fluid rounded">
+                                </td>
+                                <td class="p-3 text-start"><strong>Creator:</strong> {{result.video_creator}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-start"><strong>No.of Videos:</strong> {{result.video_count}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-start"><strong>Duration(HH:MM:SS):</strong> {{result.total_duration}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
             {% else %}
-            <div class="text-center p-5 bg-light rounded">
-                <i class="bi bi-clock" style="font-size: 5rem; color: #ccc;"></i>
-                <p class="mt-3 text-muted">Watch time will appear here.</p>
-            </div>
+                <div class="text-center p-5 bg-light rounded">
+                    <i class="bi bi-clock" style="font-size: 5rem; color: #ccc;"></i>
+                    <p class="mt-3 text-muted">Watch time will appear here.</p>
+                </div>
             {% endif %}
         </div>
     </div>
 </div>
+<div class="container mt-3 py-3">
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error!</h4>
+            <p>{{ error }}</p>
+        </div>
+    {% elif result %}
+        <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">Playlist details fetched successfully!</h4>
+        </div>
+    {% endif %}
+</div>
+<script>
+    const playlistForm = document.getElementById('playlistForm');
+    playlistForm.addEventListener('submit', function() {
+        const calculateBtn = document.getElementById('calculateBtn');
+        calculateBtn.disabled = true;
+        calculateBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span role="status">Calculating...</span>
+        `;
+    });
+</script>
 {% endblock %}

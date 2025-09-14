@@ -1,4 +1,3 @@
-import base64
 from io import BytesIO
 from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.templating import Jinja2Templates
@@ -7,15 +6,14 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import HTMLResponse, StreamingResponse
 from starlette.staticfiles import StaticFiles
 from typing import Annotated
-import qrcode
 from PIL import Image
+from external import utilities as utils
+from datetime import timedelta
+from urllib.parse import urlparse, parse_qs
+import base64, qrcode, isodate
 
 class ProxyHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        """
-        Looks for the 'x-forwarded-proto' header and sets the request scheme.
-        This is needed when running behind a proxy like Railway's.
-        """
         forwarded_proto = request.headers.get("x-forwarded-proto")
         if forwarded_proto:
             request.scope["scheme"] = forwarded_proto
@@ -64,6 +62,45 @@ async def generate_qr(request: Request, url : Annotated[HttpUrl, Form()]):
 async def youtube_playlist(request: Request):
     return templates.TemplateResponse(request=request, name="ytplaylist.html")
 
+@app.post("/ytplaylist", response_class=HTMLResponse)
+async def youtube_playlist(request: Request, url: Annotated[HttpUrl, Form()]):
+    parsed_url = urlparse(str(url))
+    query_params = parse_qs(parsed_url.query)
+    playlist_id = query_params.get('list', [None])[0]
+    ytplaylist_response = {"error": ""}
+    try:
+        if not playlist_id:
+            raise Exception
+        video_ids = []
+        next_page_token, item_list = utils.get_youtube_playlist_data(playlist_id)
+        video_ids.extend([item["contentDetails"]["videoId"] for item in item_list])
+        thumbnail = ""
+        video_creator = ""
+        if item_list:
+            thumbnail = item_list[0]["snippet"]["thumbnails"]["high"]["url"]
+            video_creator = item_list[0]["snippet"]["channelTitle"]
+        while next_page_token:
+            next_page_token, item_list = utils.get_youtube_playlist_data(playlist_id, next_page_token)
+            video_ids.extend([item["contentDetails"]["videoId"] for item in item_list])
+        video_count = len(video_ids)
+        video_durations = []
+        for video_id in video_ids:
+            video_data = utils.get_youtube_video_data(video_id)
+            if video_data:
+                duration = video_data[0]["contentDetails"]["duration"]
+                video_durations.append(duration)
+        parsed_durations = [isodate.parse_duration(duration) for duration in video_durations]
+        total_duration = sum(parsed_durations, timedelta())
+        ytplaylist_response["result"] = {
+            "total_duration": total_duration,
+            "video_count": video_count,
+            "thumbnail": thumbnail,
+            "video_creator": video_creator,
+        }
+    except Exception as e:
+        ytplaylist_response["error"] = "Something went wrong. Please try again later. (Please make sure your input playlist url is valid)"
+    return templates.TemplateResponse(request=request, name="ytplaylist.html", context=ytplaylist_response)
+
 @app.get("/compressimg", response_class=HTMLResponse)
 async def compress_image(request: Request):
     return templates.TemplateResponse(request=request, name="compressimg.html")
@@ -92,7 +129,6 @@ async def compress_image(request: Request, file: UploadFile = File(...), compres
         compression_response["error"] = "Something went wrong, Please ensure you are uploading a valid JPEG/PNG file"
     return templates.TemplateResponse(request=request, name="compressimg.html", context=compression_response)
 
-
 @app.get("/compresspdf", response_class=HTMLResponse)
-async def about(request: Request):
+async def compress_pdf(request: Request):
     return templates.TemplateResponse(request=request, name="compresspdf.html")
