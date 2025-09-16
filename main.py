@@ -1,3 +1,4 @@
+import json
 from io import BytesIO
 from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.templating import Jinja2Templates
@@ -132,3 +133,22 @@ async def compress_image(request: Request, file: UploadFile = File(...), compres
 @app.get("/compresspdf", response_class=HTMLResponse)
 async def compress_pdf(request: Request):
     return templates.TemplateResponse(request=request, name="compresspdf.html")
+
+@app.get("/beautifyjson", response_class=HTMLResponse)
+async def beautify_json(request: Request):
+    return templates.TemplateResponse(request=request, name="beautifyjson.html")
+
+@app.post("/beautifyjson", response_class=HTMLResponse)
+async def beautify_json(request: Request, json_data: str = Form(...)):
+    beautify_response = {
+        "original_json": json_data,
+        "formatted_json": "",
+        "error": None
+    }
+    try:
+        data = json.loads(json_data)
+        formatted_json = json.dumps(data, indent=4)
+        beautify_response["formatted_json"] = formatted_json
+    except Exception as e:
+        beautify_response["error"] = "Something went wrong, Please ensure you are providing valid JSON data"
+    return templates.TemplateResponse(request=request, name="beautifyjson.html", context=beautify_response)

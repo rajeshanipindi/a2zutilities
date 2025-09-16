@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container main-container">
+        <h1 class="text-center mb-4">JSON Beautifier</h1>
+        {% if error %}
+        <div class="container mt-3 py-3">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Error!</h4>
+                    <p>{{ error }}</p>
+                </div>
+        </div>
+        {% endif %}
+        <div class="row g-4">
+
+            <div class="col-lg-6">
+                <form action="/beautifyjson" method="POST" class="d-flex flex-column h-100 pb-5">
+                    <label for="jsonInput" class="form-label fw-bold">Enter your JSON here:</label>
+                    <textarea rows="15"
+                        class="form-control flex-grow-1"
+                        id="jsonInput"
+                        name="json_data"
+                        placeholder='{"id":2,"age":61,"Name":"Brad Pitt","Address":[{"city":"Los Angeles","country":"USA"},{"city":"Correns","country":"France"}],"firstmovie":{"name":"Cutting Class","releaseyear":1989}}'
+                        required
+                    >{{ original_json }}</textarea>
+                    <div class="d-grid mt-3">
+                         <button type="submit" class="btn btn-primary">Beautify JSON</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-6">
+                <label for="outputBlock" class="form-label fw-bold">Formatted Output:</label>
+                <textarea rows="15" class="form-control flex-grow-1"
+                          id="outputBlock" name="formatted_json">{{ formatted_json or '' }}</textarea>
+            </div>
+        </div>
+    </div>
+{% endblock %}
