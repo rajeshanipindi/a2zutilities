@@ -1,3 +1,4 @@
+""" This is the main route"""
 import base64
 import json
 from datetime import timedelta
@@ -31,7 +32,7 @@ ERROR_MSG_JSON_BEAUTIFY = (
 
 
 # --- Middleware ---
-class ProxyHeadersMiddleware(BaseHTTPMiddleware):
+class ProxyHeadersMiddleware(BaseHTTPMiddleware): # pylint: disable=too-few-public-methods
     """
     A middleware to correctly handle URL schemes when running behind a reverse proxy.
     This reads the 'x-forwarded-proto' header.
